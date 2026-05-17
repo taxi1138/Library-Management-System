@@ -17,7 +17,7 @@ class Person:
 	def set_age(self,age):
 		try:
 			age = int(age)
-		except(TypeError):
+		except:
 			raise TypeError("Age must be of type Integer!")
 		if age<0:
 			raise ValueError("Age cannot be negative!")

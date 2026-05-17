@@ -1,15 +1,23 @@
+import pandas as pd
+import os
 from classes.Person import Person
 
 
 class Customer(Person):
 	login_pass_Customer = {}
+	customers = []
+	customer_id = 0
 
 	def __init__(self,name,age,books_borrowed,password,nickname):
+		self.id = self.customer_id
 		super().__init__(name,age)
 		self.books_borrowed = []
 		self.verify_nickname(nickname)
 		self.verify_password(password)
 		self.login_pass_Customer[f"{self.nickname}"] = self.password
+		self.customers.append(self)
+		self.customer_id += 1
+
 
 	def get_info(self):
 		return f"A Customer of Name:{self.name} and Age:{self.age}"
@@ -28,3 +36,6 @@ class Customer(Person):
 			print("Try again.")
 			password = input("New password: ")
 		self.password = password
+
+	def __str__(self):
+		return f"ID: {self.id}, name: {self.name}, age: {self.age}"

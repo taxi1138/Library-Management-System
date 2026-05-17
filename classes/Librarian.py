@@ -1,20 +1,25 @@
 from classes.Customer import Customer
 from classes.Person import Person
 from classes.Book import Book
+import pandas as pd
+import os
 
 
 class Librarian(Person):
-	Librarians = []
 	login_pass_Librarian = {}
+	Librarians = []
+	librarian_ID = 0
 
 	def __init__(self,name,age,password,nickname):
 		super().__init__(name,age)
+		self.id = self.librarian_ID
 		if self.age < 18:
 			raise ValueError("You cannot become a Librarian before you turn 18!")
 		self.verify_password(password)
 		self.verify_nickname(nickname)
 		self.login_pass_Librarian[f"{self.nickname}"] = self.password
 		self.Librarians.append(self)
+		self.librarian_ID += 1
 
 
 	def get_info(self):
