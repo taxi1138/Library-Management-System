@@ -1,2 +1,2 @@
-ID,Name,Age,Borrowed books
-0,testname,20,[]
+ID,Name,Age,Borrowed books,Nickname,Password
+4643106679,testname,20,[],testnickname,testpass

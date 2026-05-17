@@ -1,22 +1,34 @@
 import pandas as pd
 import os
 from classes.Person import Person
+from random import randint
 
 
 class Customer(Person):
 	login_pass_Customer = {}
 	customers = []
-	customer_id = 0
+	customer_id = set()
+	test_id = ""
 
-	def __init__(self,name,age,books_borrowed,password,nickname):
-		self.id = self.customer_id
+	def __init__(self,id,name,age,books_borrowed,password,nickname):
 		super().__init__(name,age)
+		if id == "":
+			while True:
+				self.test_id = ""
+				for i in range(10):
+					self.test_id += str(randint(0, 9))
+				if self.test_id not in self.customer_id:
+					break
+			self.id = self.test_id
+			self.test_id = ""
+		else:
+			self.id = id
+		self.customer_id.add(self.id)
 		self.books_borrowed = []
 		self.verify_nickname(nickname)
 		self.verify_password(password)
 		self.login_pass_Customer[f"{self.nickname}"] = self.password
 		self.customers.append(self)
-		self.customer_id += 1
 
 
 	def get_info(self):

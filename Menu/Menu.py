@@ -12,20 +12,20 @@ class Menu(Menu_functions):
 
 
 	def load_data(self):
-		Librarian.login_pass_Librarian = pd.read_csv("Librarians_nickname_pass.csv").set_index("Nickname")["Password"].to_dict()
-		Customer.login_pass_Customer = pd.read_csv("Customers_nickname_pass.csv").set_index("Nickname")["Password"].to_dict()
+		#Librarian.login_pass_Librarian = pd.read_csv("Librarians_nickname_pass.csv").set_index("Nickname")["Password"].to_dict()
+		#Customer.login_pass_Customer = pd.read_csv("Customers_nickname_pass.csv").set_index("Nickname")["Password"].to_dict()
 		Books_rows = pd.read_csv("filtered_books.csv").to_dict(orient = "records")
-		customers_rows = pd.read_csv("Customers_data.csv", usecols = ["ID","Name","Age","Borrowed books"]).to_dict(orient = "records")
-		Librarians_rows = pd.read_csv("Librarians_data.csv",usecols = ["ID","Name","Age"]).to_dict(orient = "records")
+		customers_rows = pd.read_csv("Customers_data.csv").to_dict(orient = "records")
+		Librarians_rows = pd.read_csv("Librarians_data.csv").to_dict(orient = "records")
 
 		for row in Books_rows:
 			book = Book(row["title"],ast.literal_eval(row["authors"]),row["publication_date"],ast.literal_eval(row["genres"]),row["borrowed"])
 
 		for row in customers_rows:
-			customer = Customer(row["Name"],row["Age"],ast.literal_eval(row["Borrowed books"]),"","")
+			customer = Customer(row["ID"],row["Name"],row["Age"],ast.literal_eval(row["Borrowed books"]),row["Password"],row["Nickname"])
 
 		for row in Librarians_rows:
-			librarian = Librarian(row["Name"],row["Age"],"","")
+			librarian = Librarian(row["ID"],row["Name"],row["Age"],row["Password"],row["Nickname"])
 
 
 	def login(self):
@@ -65,55 +65,30 @@ class Menu(Menu_functions):
 			nickname = input("Input nickname: ")
 			password = input("Input password: ")
 			if self.isLibrarian:
-				user = Librarian(name,age,password,nickname)
-				self.add_Librarian(user)
+				user = Librarian("",name,age,password,nickname)
+				self.save_Librarian(user)
 			else:
-				user = Customer(name,age,[],password,nickname)
-				self.add_Customer(user)
+				user = Customer("",name,age,[],password,nickname)
+				self.save_Customer(user)
 			print("REGISTRATION COMPLETED")
 			print(f"Welcome, {name}!")
 
 
-	def removeCustomer(self):
-		print("Here are all the customers that our library has:")
-		for customer in Customer.customers:
-			print(customer)
-		to_Remove = int(input("Input the ID of the customer that you want to remove: "))
-		try:
-			to_Remove = int(to_Remove)
-		except(ValueError, TypeError):
-			TypeError("ID does not contain symbols other than digits")
-		for customer in Customer.customers:
-			if customer.id == to_Remove:
-				if len(customer.books_borrowed) == 0:
-					Customer.customers.remove(customer)
-					print(f"Customer {customer.name} has been removed")
-				else:
-					print("Sorry, you cannot remove this customer yet because he has not returned all the books he borrowed.")
-			else:
-				print("No Customer with such ID in the database")
-
-
-	def add_Librarian(self,user):
-		data = {"ID": [user.id], "Name": [user.name], "Age": [user.age]}
+	def save_Librarian(self,user):
+		data = {"ID": [user.id], "Name": [user.name], "Age": [user.age], "Nickname":[user.nickname],"Password":[user.password]}
 		df = pd.DataFrame(data)
 		df.to_csv("Librarians_data.csv", mode="a", header=not os.path.exists("Librarians_data.csv"), index=False)
-		data = {"ID": [user.id], "Nickname": [user.nickname], "Password": [user.password]}
-		df = pd.DataFrame(data)
-		df.to_csv("Librarians_nickname_pass.csv", mode="a", header=not os.path.exists("Librarians_nickname_pass.csv"), index=False)
 
-	def add_Customer(self,user):
-		data = {"ID": [user.id], "Name": [user.name], "Age": [user.age], "Borrowed books": [user.books_borrowed]}
+
+	def save_Customer(self,user):
+		data = {"ID": [user.id], "Name": [user.name], "Age": [user.age], "Borrowed books": [user.books_borrowed], "Nickname":[user.nickname], "Password":[user.password]}
 		df = pd.DataFrame(data)
 		df.to_csv("Customers_data.csv", mode="a", header=not os.path.exists("Customers_data.csv"), index=False)
-		data = {"ID": [user.id], "Nickname": [user.nickname], "Password": [user.password]}
-		df = pd.DataFrame(data)
-		df.to_csv("Customers_nickname_pass.csv", mode="a", header=not os.path.exists("Customers_nickname_pass.csv"),
-				  index=False)
 
-	def add_book(self,book):
+
+	def save_book(self,book):
 		data = {"title": [book.title], "publication_date": [book.publication_date], "authors": [book.authors],
 				"genres": [book.genres], "borrowed": [book.borrowed]}
 		df = pd.DataFrame(data)
-		df.to_csv("filtered_books_library.csv", mode="a", header=not os.path.exists("filtered_books_library.csv"))
+		df.to_csv("filtered_books.csv", mode="a", header=not os.path.exists("filtered_books.csv"))
 

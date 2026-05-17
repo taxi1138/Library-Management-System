@@ -7,12 +7,16 @@ class Person:
 	def get_info(self):
 		return f"arbitrary person of Name:{self.name} and Age:{self.age}"
 
+
 	def set_name(self,name):
 		if not isinstance(name, str):
 			raise TypeError("Name must be of String type!")
 		if len(name.strip())<1:
 			raise ValueError("Name cannot be left empty!")
+		if not name.replace(" ","").isalpha():
+			raise ValueError("Name must contain letters and nothing else!")
 		self.name = name
+
 
 	def set_age(self,age):
 		try:

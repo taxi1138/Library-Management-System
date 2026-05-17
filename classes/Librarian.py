@@ -1,6 +1,7 @@
 from classes.Customer import Customer
 from classes.Person import Person
 from classes.Book import Book
+from random import randint
 import pandas as pd
 import os
 
@@ -8,18 +9,29 @@ import os
 class Librarian(Person):
 	login_pass_Librarian = {}
 	Librarians = []
-	librarian_ID = 0
+	librarian_ID = set()
+	test_id = ""
 
-	def __init__(self,name,age,password,nickname):
+	def __init__(self,id,name,age,password,nickname):
 		super().__init__(name,age)
-		self.id = self.librarian_ID
+		if id == "":
+			while True:
+				self.test_id = ""
+				for i in range(10):
+					self.test_id += str(randint(0, 9))
+				if self.test_id not in self.librarian_ID:
+					break
+			self.id = self.test_id
+			self.test_id = ""
+		else:
+			self.id = id
+		self.librarian_ID.add(self.id)
 		if self.age < 18:
 			raise ValueError("You cannot become a Librarian before you turn 18!")
 		self.verify_password(password)
 		self.verify_nickname(nickname)
 		self.login_pass_Librarian[f"{self.nickname}"] = self.password
 		self.Librarians.append(self)
-		self.librarian_ID += 1
 
 
 	def get_info(self):
