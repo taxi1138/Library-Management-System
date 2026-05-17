@@ -12,8 +12,6 @@ class Menu(Menu_functions):
 
 
 	def load_data(self):
-		#Librarian.login_pass_Librarian = pd.read_csv("Librarians_nickname_pass.csv").set_index("Nickname")["Password"].to_dict()
-		#Customer.login_pass_Customer = pd.read_csv("Customers_nickname_pass.csv").set_index("Nickname")["Password"].to_dict()
 		Books_rows = pd.read_csv("filtered_books.csv").to_dict(orient = "records")
 		customers_rows = pd.read_csv("Customers_data.csv").to_dict(orient = "records")
 		Librarians_rows = pd.read_csv("Librarians_data.csv").to_dict(orient = "records")
