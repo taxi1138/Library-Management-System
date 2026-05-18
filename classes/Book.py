@@ -1,28 +1,34 @@
 import re
+import regex
 
 class Book:
 	storage = []
-	def __init__(self,title,authors,publication_date,genres):
+	def __init__(self,title,authors,publication_date,genres,borrowed):
 		self.set_title(title)
 		self.set_date(publication_date)
 		self.set_authors(authors)
 		self.set_genres(genres)
-		self.borrowed = 0
+		self.borrowed = borrowed
 		Book.storage.append(self)
 
 	def __str__(self):
 		return f"Title: {self.title}, authors: {self.authors}, date: {self.publication_date}, genres: {self.genres}"
 
-	def set_authors(self,authors):
+	def set_authors(self, authors):
+		if not isinstance(authors, list):
+			raise TypeError("authors must be a list")
+		cleaned_authors = []
 		for author in authors:
-			if not isinstance(author,str):
+			if not isinstance(author, str):
 				raise TypeError("names of the authors must be of String type")
+			author = author.strip()
 			if len(author) == 0:
 				raise ValueError("Name of author must be mentioned")
-			if not author.replace(" ", "").replace(".","").replace("(","").replace(")","").replace("-","").replace("'","").replace("/","").isalpha():
-				print(author)
-				raise ValueError("Name of the author cannot contain digits")
-		self.authors = authors
+			letters_only = regex.sub(r'[^\p{L}]', '', author)
+			if len(letters_only) == 0:
+				continue
+			cleaned_authors.append(author)
+		self.authors = cleaned_authors
 
 
 	def set_genres(self, genres):

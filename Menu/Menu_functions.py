@@ -10,16 +10,16 @@ class Menu_functions(ABC):
 		pass
 
 	@abstractmethod
-	def searchByGenre(self):
+	def search_by_genre(self):
 		pass
 
-	#@abstractmethod
-	#def searchByGenre_and_publicationYear(self):
-	#	pass
+	@abstractmethod
+	def advanced_search(self):
+		pass
 
-	#@abstractmethod
-	#def borrow_book(self, book):
-	#	pass
+	@abstractmethod
+	def search_by_author(self):
+		pass
 
 	@abstractmethod
 	def add_book(self):
