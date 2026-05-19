@@ -36,3 +36,7 @@ class Menu_functions(ABC):
 	@abstractmethod
 	def show_librarians(self):
 		pass
+
+	@abstractmethod
+	def show_books(self):
+		pass

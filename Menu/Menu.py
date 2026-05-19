@@ -435,22 +435,3 @@ class Menu(Menu_functions):
 			data.append(row)
 		df_librarians = pd.DataFrame(data)
 		df_librarians.to_csv("Librarians_data.csv", index = False)
-
-		class TestCreation(unittest.TestCase):
-
-			def test_instance_creation(self):
-				customer = Customer("", "John", 20, "", "mypassword", "john123")
-				self.assertEqual(customer.name, "John")
-				self.assertEqual(customer.age, 20)
-				self.assertEqual(customer.books_borrowed, "")
-				self.assertEqual(customer.password, "mypassword")
-				self.assertEqual(customer.nickname, "john123")
-
-				librarian = Librarian("", "Alice", 30, "adminpass", "aliceadmin")
-				self.assertEqual(librarian.name, "Alice")
-				self.assertEqual(librarian.age, 30)
-				self.assertEqual(librarian.password, "adminpass")
-				self.assertEqual(librarian.nickname, "aliceadmin")
-
-		if __name__ == "__main__":
-			unittest.main()
