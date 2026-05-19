@@ -136,7 +136,7 @@ class Menu(Menu_functions):
 			if self.isLibrarian:
 				self.user = Librarian("",name,age,password,nickname)
 			else:
-				self.user = Customer("",name,age,[],password,nickname)
+				self.user = Customer("",name,age,"",password,nickname)
 			print("REGISTRATION COMPLETED")
 			print(f"Welcome, {name}!")
 
