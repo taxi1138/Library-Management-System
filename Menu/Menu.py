@@ -1,3 +1,6 @@
+import unittest
+
+from Iterator.BookIterator import BookIterator
 from Menu.Menu_functions import Menu_functions
 from classes.Customer import Customer
 from classes.Librarian import Librarian
@@ -24,6 +27,7 @@ class Menu(Menu_functions):
 			print("6. Show all customers")
 			print("7. Show all librarians")
 			print("8. Return book")
+			print("9. Show books")
 			print("0. Exit")
 			choice = input("Input your choice: ")
 			match choice:
@@ -50,6 +54,9 @@ class Menu(Menu_functions):
 				case "8":
 					if self.require_login():
 						self.return_book()
+				case "9":
+					if self.require_login():
+						self.show_books()
 				case "0":
 					print("Goodbye!")
 					self.save_data()
@@ -195,9 +202,8 @@ class Menu(Menu_functions):
 		if decision.lower() == "single":
 			genre = input("Input the genre you are looking for(First letters must be capital): ")
 			print(f"These are the books with the genre {genre}:")
-			for book in Book.storage:
-				if genre in book.genres:
-					print(book)
+			for book in self.genre_generator(genre):
+				print(book)
 			book_title = input("Input the title of the book you liked: ")
 			if book_title == "":
 				print("No book was given to you because you didn't input title.")
@@ -373,7 +379,7 @@ class Menu(Menu_functions):
 			return
 		else:
 			for book in Book.storage:
-				authors = [x.lower() for x in book.authors]
+				authors = list(map(lambda x: x.lower(), book.authors))
 				if any(author in a for a in authors):
 					print(book)
 			book_title = input("Input the title of the book you liked: ")
@@ -396,6 +402,16 @@ class Menu(Menu_functions):
 	def show_librarians(self):
 		for librarian in Librarian.Librarians:
 			print(librarian.get_info())
+
+	def show_books(self):
+		iterator = BookIterator(Book.storage)
+		for book in iterator:
+			print(book)
+
+	def genre_generator(self, genre):
+		for book in Book.storage:
+			if genre in book.genres:
+				yield book
 
 
 	def save_data(self):
@@ -420,9 +436,21 @@ class Menu(Menu_functions):
 		df_librarians = pd.DataFrame(data)
 		df_librarians.to_csv("Librarians_data.csv", index = False)
 
+		class TestCreation(unittest.TestCase):
 
+			def test_instance_creation(self):
+				customer = Customer("", "John", 20, "", "mypassword", "john123")
+				self.assertEqual(customer.name, "John")
+				self.assertEqual(customer.age, 20)
+				self.assertEqual(customer.books_borrowed, "")
+				self.assertEqual(customer.password, "mypassword")
+				self.assertEqual(customer.nickname, "john123")
 
+				librarian = Librarian("", "Alice", 30, "adminpass", "aliceadmin")
+				self.assertEqual(librarian.name, "Alice")
+				self.assertEqual(librarian.age, 30)
+				self.assertEqual(librarian.password, "adminpass")
+				self.assertEqual(librarian.nickname, "aliceadmin")
 
-
-
-
+		if __name__ == "__main__":
+			unittest.main()
