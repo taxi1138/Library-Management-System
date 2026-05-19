@@ -25,4 +25,14 @@ class Menu_functions(ABC):
 	def add_book(self):
 		pass
 
+	@abstractmethod
+	def return_book(self):
+		pass
 
+	@abstractmethod
+	def show_customers(self):
+		pass
+
+	@abstractmethod
+	def show_librarians(self):
+		pass

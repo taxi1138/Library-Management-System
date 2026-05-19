@@ -24,7 +24,7 @@ class Customer(Person):
 		else:
 			self.id = id
 		self.customer_id.add(self.id)
-		self.books_borrowed = []
+		self.books_borrowed = books_borrowed
 		self.verify_nickname(nickname)
 		self.verify_password(password)
 		self.login_pass_Customer[f"{self.nickname}"] = self.password
@@ -43,11 +43,18 @@ class Customer(Person):
 		self.nickname = nickname
 
 	def verify_password(self, password):
-		while (not isinstance(password, str)) or (len(password)<6):
-			print("Password must be of type String and at least 6 symbols in length.")
-			print("Try again.")
-			password = input("New password: ")
-		self.password = password
+		while True:
+			try:
+				if not isinstance(password, str):
+					raise TypeError("Password must be a string")
+				if len(password) < 6:
+					raise ValueError("Password must be at least 6 characters long")
+				self.password = password
+				break
+			except (TypeError, ValueError) as e:
+				print(e)
+				print("Try again.")
+				password = input("New password: ")
 
 	def __str__(self):
 		return f"ID: {self.id}, name: {self.name}, age: {self.age}"

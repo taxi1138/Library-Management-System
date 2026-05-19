@@ -26,18 +26,3 @@ class Person:
 		if age<0:
 			raise ValueError("Age cannot be negative!")
 		self.age = age
-
-	#def verify_nickname(self,nickname):
-	#	while not isinstance(nickname, str):
-	#		print("nickname can include special symbols and digits, but it must be of type String!")
-	#		print("Maybe your nickname is already taken be someone.")
-	#		print("Try again.", end = " ")
-	#		nickname = input("New nickname: ")
-	#	self.nickname = nickname
-#
-#	def verify_password(self,password):
-#		while not isinstance(password, str) or len(password) < 6:
-#			print("Password must be of String type and contain at least 6 symbols!")
-#			print("Try again", end = " ")
-#			password = input("New password: ")
-#		self.password = password

@@ -53,7 +53,7 @@ class Book:
 			raise TypeError("Publication date must be of type string")
 		if len(publication_date)==0:
 			raise ValueError("Publication date cannot be left empty")
-		publication_date = publication_date.strip()
+		publication_date = str(publication_date).strip()
 		pattern = r"^(0[1-9]|1[0-2])/([0-2][0-9]|3[01])/\d{2}$"
 		if not re.match(pattern, publication_date):
 			print(publication_date)

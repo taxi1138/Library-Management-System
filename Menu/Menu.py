@@ -3,15 +3,68 @@ from classes.Customer import Customer
 from classes.Librarian import Librarian
 from classes.Book import Book
 import pandas as pd
-import os
 import ast
-from decorators.decorator import decorator,decorator_assign_book
+from decorators.decorator import decorator
 import re
 
 class Menu(Menu_functions):
 	isLibrarian = False
 	isCustomer = False
 	user = None
+
+	def run_interface(self):
+		running = True
+		while running:
+			print("\n===== LIBRARY MENU =====")
+			print("1. Login / Register")
+			print("2. Search by genre")
+			print("3. Search by author")
+			print("4. Advanced search")
+			print("5. Add book")
+			print("6. Show all customers")
+			print("7. Show all librarians")
+			print("8. Return book")
+			print("0. Exit")
+			choice = input("Input your choice: ")
+			match choice:
+				case "1":
+					self.login()
+				case "2":
+					if self.require_login():
+						self.search_by_genre()
+				case "3":
+					if self.require_login():
+						self.search_by_author()
+				case "4":
+					if self.require_login():
+						self.advanced_search()
+				case "5":
+					if self.require_login():
+						self.add_book()
+				case "6":
+					if self.require_login():
+						self.show_customers()
+				case "7":
+					if self.require_login():
+						self.show_librarians()
+				case "8":
+					if self.require_login():
+						self.return_book()
+				case "0":
+					print("Goodbye!")
+					self.save_data()
+					running = False
+				case _:
+					print("Invalid choice!")
+			if running:
+				input("\nPress Enter to continue...")
+
+
+	def require_login(self):
+		if self.user is None:
+			print("You must login or register first!")
+			return False
+		return True
 
 
 	def load_data(self):
@@ -23,7 +76,12 @@ class Menu(Menu_functions):
 			Book(row["title"],ast.literal_eval(row["authors"]),row["publication_date"],ast.literal_eval(row["genres"]),row["borrowed"])
 
 		for row in customers_rows:
-			Customer(row["ID"],row["Name"],row["Age"],ast.literal_eval(row["Borrowed books"]),row["Password"],row["Nickname"])
+			val = row["Borrowed books"]
+			if pd.isna(val) or str(val).strip() in ["", "[]", "nan"]:
+				val = ""
+			else:
+				val = str(val).strip()
+			Customer(row["ID"],row["Name"],row["Age"],val,row["Password"],row["Nickname"])
 
 		for row in Librarians_rows:
 			Librarian(row["ID"],row["Name"],row["Age"],row["Password"],row["Nickname"])
@@ -77,21 +135,26 @@ class Menu(Menu_functions):
 			password = input("Input password: ")
 			if self.isLibrarian:
 				self.user = Librarian("",name,age,password,nickname)
-				self.save_Librarian(self.user)
 			else:
 				self.user = Customer("",name,age,[],password,nickname)
-				self.save_Customer(self.user)
 			print("REGISTRATION COMPLETED")
 			print(f"Welcome, {name}!")
 
 
-	@decorator_assign_book
 	def assign_book(self,book,user):
-		if book not in user.books_borrowed:
+		is_borrowed = True
+		if self.isCustomer:
+			if user.books_borrowed == "" or user.books_borrowed == []:
+				is_borrowed = True
+			else:
+				print("you cannot borrow more than one book at a time.")
+				return
+
+		if is_borrowed:
 			if book.borrowed == 0:
 				if self.isCustomer:
 					book.borrowed = 1
-					user.books_borrowed.append(book)
+					user.books_borrowed = book.title
 					print(f"The book {book.title} is now yours, but dont forget to return it.")
 					return
 				else:
@@ -100,18 +163,31 @@ class Menu(Menu_functions):
 			else:
 				print(f"Sorry, you cannot borrow this book, someone has already taken it.")
 				return
+
+	def return_book(self):
+		borrowed = str(self.user.books_borrowed).strip()
+		if not borrowed or borrowed == "nan":
+			print("You have no books to return.")
+			return
+
+		print(f"You currently have: {borrowed}")
+		title = input("Input the title of the book you want to return: ").strip()
+		if title == "":
+			print("No title entered.")
+			return
+		if borrowed.lower() != title.lower():
+			print("You did not borrow this book.")
+			return
+
+		for book in Book.storage:
+			if book.title.lower() == title.lower():
+				book.borrowed = 0
+				break
 		else:
-			return "The book is already yours, no need to try to borrow it twice."
-
-
-
-	def return_book(self,book,user):
-		if book in user.books_borrowed:
-			book.borrowed = 0
-			user.books_borrowed.remove(book)
-			print(f"You returned the book {book.title}.")
-		else:
-			print(f"You cannot return the book {book.title} since you never borrowed it.")
+			print("Book not found in library database.")
+			return
+		self.user.books_borrowed = ""
+		print(f"You have successfully returned '{title}'.")
 
 
 	def search_by_genre(self):
@@ -129,13 +205,9 @@ class Menu(Menu_functions):
 			else:
 				for book in Book.storage:
 					if book.title.lower() == book_title.lower():
-						if not self.isLibrarian:
-							self.isLibrarian = True
-							self.assign_book(book,self.user)
-							self.isLibrarian = False
-						else:
-							self.assign_book(book,self.user)
+						self.assign_book(book,self.user)
 						return
+
 		elif decision.lower() == "mult":
 			genres = []
 			genres_num = int(input("Input how many genres you are looking for: "))
@@ -154,12 +226,7 @@ class Menu(Menu_functions):
 			else:
 				for book in Book.storage:
 					if book.title.lower() == book_title.lower():
-						if not self.isLibrarian:
-							self.isLibrarian = True
-							self.assign_book(book,self.user)
-							self.isLibrarian = False
-						else:
-							self.assign_book(book,self.user)
+						self.assign_book(book, self.user)
 						return
 
 
@@ -178,20 +245,17 @@ class Menu(Menu_functions):
 		for i in range(genres_num):
 			genre = input(f"Input genre {i}: ")
 			genres.append(genre)
-		book = Book(title, authors, date, genres, 0)
-		self.save_book(book)
+		Book(title, authors, date, genres, 0)
 		print(f"The book {title} was added to the database.")
 
 
 	def advanced_search(self):
-		author = ""
 		year_begin = ""
 		year_end = ""
 		genre = ""
 		genres = []
 		exclude_genre = ""
 		exclude_genres = []
-		author = input("Input the author you search for (leave empty if no need): ")
 		pattern_year = r"^\d{2}$"
 		year_begin = input("Input the lower bound for search by year of publication(leave empty if no need). Form of input must be YY: ")
 		if year_begin!="":
@@ -239,39 +303,21 @@ class Menu(Menu_functions):
 				print("Invalid input.")
 				return
 
-		valid_books = set()
+		valid_books = []
 		for book in Book.storage:
-			if self.author_check(author,book) and self.genres_check(genre,genres,book) and self.date_check(year_begin,year_end,book) and self.exclude_genres_check(exclude_genre,exclude_genres,book):
+			if self.genres_check(genre,genres,book) and self.date_check(year_begin,year_end,book) and self.exclude_genres_check(exclude_genre,exclude_genres,book):
 				print(book)
-				valid_books.add(book)
+				valid_books.append(book)
 		title = input("Input the title of the book you liked(leave empty if not interested): ")
 		if title == "":
 			print("No book has been given to you because you didn't input title.")
 			return
 		for book in valid_books:
 			if book.title.lower() == title.lower():
-				if book.borrowed!=1:
-					if isinstance(self.user,Customer):
-						book.borrowed = 1
-						self.user.books_borrowed.append(book)
-						print(f"You just borrowed the book '{book.title}'. Do not forget to return it.")
-						return
-					else:
-						print("You may borrow the book, Librarian")
-						return
-				else:
-					print("Sorry, this book has already been taken by someone. You cannot borrow it.")
-					return
+				self.assign_book(book,self.user)
+				return
 
 
-	def author_check(self,author,book):
-		if author == "":
-			return True
-		else:
-			for author_ in book.authors:
-				if author_.lower() == author.lower():
-					return True
-			return False
 
 	def genres_check(self,genre,genres, book):
 		if len(genres)==0 and genre == "":
@@ -318,23 +364,65 @@ class Menu(Menu_functions):
 				return True
 
 
-	def save_Librarian(self,user):
-		data = {"ID": [user.id], "Name": [user.name], "Age": [user.age], "Nickname":[user.nickname],"Password":[user.password]}
-		df = pd.DataFrame(data)
-		df.to_csv("Librarians_data.csv", mode="a", header=not os.path.exists("Librarians_data.csv"), index=False)
+	def search_by_author(self):
+		for book in Book.storage:
+			print(book.authors)
+		author = input("Input the name of the author you want to search(make sure his name is written right): ").lower()
+		if author == "":
+			print("We didn't search for author because you didn't input the name of one.")
+			return
+		else:
+			for book in Book.storage:
+				authors = [x.lower() for x in book.authors]
+				if any(author in a for a in authors):
+					print(book)
+			book_title = input("Input the title of the book you liked: ")
+			if book_title == "":
+				print("No book was given to you because you didn't input title")
+				return
+			else:
+				for book in Book.storage:
+					if book.title.lower() == book_title.lower():
+						self.assign_book(book, self.user)
+						return
 
 
-	def save_Customer(self,user):
-		data = {"ID": [user.id], "Name": [user.name], "Age": [user.age], "Borrowed books": [user.books_borrowed], "Nickname":[user.nickname], "Password":[user.password]}
-		df = pd.DataFrame(data)
-		df.to_csv("Customers_data.csv", mode="a", header=not os.path.exists("Customers_data.csv"), index=False)
+	@decorator
+	def show_customers(self):
+		for customer in Customer.customers:
+			print(customer.get_info())
+
+	@decorator
+	def show_librarians(self):
+		for librarian in Librarian.Librarians:
+			print(librarian.get_info())
 
 
-	def save_book(self,book):
-		data = {"title": [book.title], "publication_date": [book.publication_date], "authors": [book.authors],
-				"genres": [book.genres], "borrowed": [book.borrowed]}
-		df = pd.DataFrame(data)
-		df.to_csv("filtered_books1.csv", mode="a", header=not os.path.exists("filtered_books.csv"))
+	def save_data(self):
+		data = []
+		for book in Book.storage:
+			row = {"title": book.title, "publication_date": book.publication_date, "authors": book.authors, "genres": book.genres, "borrowed": book.borrowed}
+			data.append(row)
+		df_books = pd.DataFrame(data)
+		df_books.to_csv("filtered_books.csv", index = False)
+
+		data = []
+		for customer in Customer.customers:
+			row = {"ID": customer.id, "Name": customer.name, "Age": customer.age, "Borrowed books": customer.books_borrowed, "Nickname":customer.nickname, "Password":customer.password}
+			data.append(row)
+		df_customers = pd.DataFrame(data)
+		df_customers.to_csv("Customers_data.csv", index = False)
+
+		data = []
+		for librarian in Librarian.Librarians:
+			row = {"ID": librarian.id, "Name": librarian.name, "Age": librarian.age, "Nickname": librarian.nickname,"Password": librarian.password}
+			data.append(row)
+		df_librarians = pd.DataFrame(data)
+		df_librarians.to_csv("Librarians_data.csv", index = False)
+
+
+
+
 
 
 

@@ -38,19 +38,6 @@ class Librarian(Person):
 		return f"A Librarian of Name:{self.name} and Age:{self.age}"
 
 
-	def assign_book(self,book,customer):
-		if not isinstance(book, Book):
-			raise TypeError("book must be of Book class!")
-		if not isinstance(customer, Customer):
-			raise TypeError("customer must be of Customer class")
-		if not book.borrowed:
-			book.borrowed = True
-			customer.books_borrowed.append(book)
-			print("")
-		else:
-			print(f"The book {book.title} has already been taken by someone")
-
-
 	def verify_nickname(self,nickname):
 		while (not isinstance(nickname, str)) or (nickname in self.login_pass_Librarian.keys()):
 			print("nickname can include special symbols and digits, but it must be of type String!")
@@ -60,9 +47,16 @@ class Librarian(Person):
 		self.nickname = nickname
 
 	def verify_password(self,password):
-		while (not isinstance(password, str)) or len(password)<6:
-			print("Password must be of String type and at length 6 symbols in length!")
-			print("Try again.", end = " ")
-			password = input("New password: ")
-		self.password = password
+		while True:
+			try:
+				if not isinstance(password, str):
+					raise TypeError("Password must be a string")
+				if len(password) < 6:
+					raise ValueError("Password must be at least 6 characters long")
+				self.password = password
+				break
+			except (TypeError, ValueError) as e:
+				print(e)
+				print("Try again.")
+				password = input("New password: ")
 
