@@ -1,9 +1,5 @@
-from classes.Customer import Customer
 from classes.Person import Person
-from classes.Book import Book
 from random import randint
-import pandas as pd
-import os
 
 
 class Librarian(Person):

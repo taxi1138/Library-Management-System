@@ -1,5 +1,3 @@
-import unittest
-
 from Iterator.BookIterator import BookIterator
 from Menu.Menu_functions import Menu_functions
 from classes.Customer import Customer
@@ -285,8 +283,8 @@ class Menu(Menu_functions):
 			elif choice.lower() == "mult":
 				genres_num = int(input("How many genres will you search for?: "))
 				for i in range(genres_num):
-					genre = input(f"Input genre {i} (must start with capital letter): ")
-					genres.append(genre)
+					genre_ = input(f"Input genre {i} (must start with capital letter): ")
+					genres.append(genre_)
 			else:
 				print("Invalid input")
 				return
@@ -300,9 +298,9 @@ class Menu(Menu_functions):
 			elif choice.lower() == "mult":
 				exclude_genres_num = int(input("Input how many genres you want to exclude: "))
 				for i in range(exclude_genres_num):
-					exclude_genre = input(f"Input exclude_genre {i} (must start with capital letter): ")
-					exclude_genres.append(exclude_genre)
-					if exclude_genre in genres:
+					exclude_genre_ = input(f"Input exclude_genre {i} (must start with capital letter): ")
+					exclude_genres.append(exclude_genre_)
+					if exclude_genre_ in genres:
 						print("You cannot exclude genres you are searching for.")
 						return
 			else:
@@ -338,8 +336,8 @@ class Menu(Menu_functions):
 				for genre_ in genres:
 					if genre_ not in book.genres:
 						return False
-					else:
-						continue
+					#else:
+					#	continue
 				return True
 
 	def date_check(self,year_begin,year_end, book):

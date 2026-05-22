@@ -1,5 +1,3 @@
-import pandas as pd
-import os
 from classes.Person import Person
 from random import randint
 
